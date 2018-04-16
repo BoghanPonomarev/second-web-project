@@ -4,6 +4,7 @@ import lombok.*;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
@@ -24,6 +25,10 @@ import java.util.List;
 @Entity
 @Table(name = "cinema")
 @Component
+@Scope("prototype")
+@NamedQueries({
+        @NamedQuery(name = "Cinema.getAll", query = "FROM Cinema"),
+})
 public class Cinema {
 
     @Id

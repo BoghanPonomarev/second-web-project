@@ -1,27 +1,29 @@
 package ua.nure.ponomarev.config;
 
-import org.hibernate.SessionFactory;
-import org.hibernate.service.jdbc.connections.internal.DatasourceConnectionProviderImpl;
-import org.hibernate.service.jdbc.connections.spi.ConnectionProvider;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.aop.aspectj.annotation.AnnotationAwareAspectJAutoProxyCreator;
+import org.springframework.context.annotation.*;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
+import ua.nure.ponomarev.aspect.DaoAspect;
+import ua.nure.ponomarev.aspect.ServiceAspect;
 import ua.nure.ponomarev.util.HibernateUtil;
+
+import javax.persistence.EntityManagerFactory;
 
 /**
  * @author Bogdan_Ponamarev.
  */
 @Configuration
 @EnableWebMvc
+@Import({DaoAspect.class, ServiceAspect.class})
+@EnableAspectJAutoProxy
 @ComponentScan("ua.nure.ponomarev")
 public class WebAppConfig implements WebMvcConfigurer {
 
-    private HibernateUtil hibernateUtil=new HibernateUtil();
+    private HibernateUtil hibernateUtil = new HibernateUtil();
 
     // Позволяет видеть все ресурсы в папке pages, такие как картинки, стили и т.п.
     @Override
@@ -41,19 +43,14 @@ public class WebAppConfig implements WebMvcConfigurer {
         return resolver;
     }
 
- /*    @Bean
-    public AbstractPlatformTransactionManager transactionManager(SessionFactory sessionFactory){
-        return new HibernateTransactionManager(sessionFactory);
-     }*/
 
-     @Bean
-    public SessionFactory sessionFactory(){
+    @Bean
+    public EntityManagerFactory sessionFactory() {
         return hibernateUtil.getSessionFactory();
-     }
+    }
 
-     @Bean
-    public ConnectionProvider connectionProvider(){
-        return new DatasourceConnectionProviderImpl();
-     }
-
+    @Bean
+    public AnnotationAwareAspectJAutoProxyCreator annotationAwareAspectJAutoProxyCreator(){
+        return new AnnotationAwareAspectJAutoProxyCreator();
+    }
 }

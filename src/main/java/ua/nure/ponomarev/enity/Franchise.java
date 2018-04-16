@@ -3,6 +3,7 @@ package ua.nure.ponomarev.enity;
 import lombok.*;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
@@ -21,6 +22,7 @@ import java.util.List;
 @Entity
 @Table(name = "franchise")
 @Component
+@Scope("prototype")
 public class Franchise {
 
     @Id
@@ -32,9 +34,9 @@ public class Franchise {
     @NotEmpty
     private String address;
 
-    @Column(name="schedule")
-    @OneToMany(targetEntity = WorkHoursOfDay.class,cascade = CascadeType.ALL)
-    private List<WorkHoursOfDay> schedule;
+    @Column(name = "open_close_schedule")
+    @OneToMany(targetEntity = WorkHoursOfDay.class, cascade = CascadeType.ALL)
+    private List<WorkHoursOfDay> openCloseSchedule;
 
     @Column(name = "description")
     @Lazy

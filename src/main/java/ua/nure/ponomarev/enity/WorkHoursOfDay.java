@@ -1,7 +1,10 @@
 package ua.nure.ponomarev.enity;
 
+import lombok.*;
 import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.context.annotation.Scope;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -10,26 +13,34 @@ import java.util.Date;
 /**
  * @author Bogdan_Ponamarev.
  */
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+
+@Component
 @Entity
 @Table(name = "work_day_hours")
+@Scope("prototype")
 public class WorkHoursOfDay {
     @Id
     @GeneratedValue
     private int id;
 
-    @Column(name = "day",nullable = false)
+    @Column(name = "day", nullable = false)
     @NotEmpty
     @NotNull
     private DayOfWeek dayOfWeek;
 
     @NotNull
-    @Column(name = "opening" ,nullable = false)
+    @Column(name = "opening", nullable = false)
     @Temporal(TemporalType.TIME)
     @DateTimeFormat(pattern = "hh:mm")
     private Date opening;
 
     @NotNull
-    @Column(name = "closing" ,nullable = false)
+    @Column(name = "closing", nullable = false)
     @Temporal(TemporalType.TIME)
     @DateTimeFormat(pattern = "hh:mm")
     private Date closing;
@@ -45,6 +56,7 @@ public class WorkHoursOfDay {
             throw new IllegalArgumentException("Opening can`t be after closing");
         }
     }
+
     public enum DayOfWeek {
         MONDAY(1),
         TUESDAY(2),
@@ -60,7 +72,7 @@ public class WorkHoursOfDay {
             number = numberOfDay;
         }
 
-        public int getDayNumber(){
+        public int getDayNumber() {
             return number;
         }
     }
