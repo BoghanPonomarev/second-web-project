@@ -6,13 +6,8 @@
 <hibernate-configuration>
 
     <session-factory>
-        <property name="hibernate.bytecode.use_reflection_optimizer">false</property>
-        <property name="hibernate.connection.driver_class" >com.mysql.jdbc.Driver</property>
-        <property name="hibernate.connection.password">1111</property>
-        <property name="hibernate.connection.url">
-            jdbc:mysql://localhost:3306/spring_practice?createDatabaseIfNotExist=true
-        </property>
-        <property name="hibernate.connection.username">Bohdan</property>
+        <property name="hibernate.current_session_context_class">org.springframework.orm.hibernate5.SpringSessionContext</property>
+        <property name="connection.datasource">java:/comp/env/jdbc/data_source</property>
         <property name="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</property>
         <property name="show_sql">true</property>
         <property name="hibernate.hbm2ddl.auto">update</property>
@@ -22,14 +17,14 @@
         <!-- Подключение объектов сущностей -->
 
         <mapping package="ua.nure.ponomarev"/>
-        <mapping class="ua.nure.ponomarev.enity.Franchise"/>
-        <mapping class="ua.nure.ponomarev.enity.Cinema"/>
-        <mapping class="ua.nure.ponomarev.enity.WorkHoursOfDay"/>
-        <mapping class="ua.nure.ponomarev.enity.User"/>
-        <mapping class="ua.nure.ponomarev.enity.Film"/>
-        <mapping class="ua.nure.ponomarev.enity.Hall"/>
-        <mapping class="ua.nure.ponomarev.enity.Seance"/>
-        <mapping class="ua.nure.ponomarev.enity.PlaceStatus"/>
+        <mapping class="ua.nure.ponomarev.model.enity.Franchise"/>
+        <mapping class="ua.nure.ponomarev.model.enity.Cinema"/>
+        <mapping class="ua.nure.ponomarev.model.enity.WorkHoursOfDay"/>
+        <mapping class="ua.nure.ponomarev.model.enity.User"/>
+        <mapping class="ua.nure.ponomarev.model.enity.Film"/>
+        <mapping class="ua.nure.ponomarev.model.enity.Hall"/>
+        <mapping class="ua.nure.ponomarev.model.enity.Seance"/>
+        <mapping class="ua.nure.ponomarev.model.enity.PlaceStatus"/>
     </session-factory>
 
 </hibernate-configuration>

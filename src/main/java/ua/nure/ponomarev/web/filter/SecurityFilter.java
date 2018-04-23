@@ -3,9 +3,10 @@ package ua.nure.ponomarev.web.filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
-import ua.nure.ponomarev.enity.Role;
-import ua.nure.ponomarev.holder.RoleHolder;
+import ua.nure.ponomarev.model.enity.Role;
+import ua.nure.ponomarev.model.holder.RoleHolder;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -14,13 +15,18 @@ import java.io.IOException;
 
 /**
  * @author Bogdan_Ponamarev.
+ *
+ * Security filter is responsible for checking and adding role to user.
+ * Role stors in session
  */
 public class SecurityFilter implements Filter {
     private static final Logger logger = LoggerFactory.getLogger(SecurityFilter.class);
 
     private static final String SESSION_ROLE_ATTRIBUTE_NAME = "role";
+
     private static final Role DEFAULT_ROLE = Role.ANONYMOUS;
 
+    @Lazy
     @Autowired
     private RoleHolder roleHolder;
 
