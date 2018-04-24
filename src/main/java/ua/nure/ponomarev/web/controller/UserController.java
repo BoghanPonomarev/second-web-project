@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -15,7 +16,10 @@ import ua.nure.ponomarev.model.enity.User;
 import ua.nure.ponomarev.model.exception.MailSenderException;
 import ua.nure.ponomarev.model.exception.RegistrationException;
 import ua.nure.ponomarev.model.service.UserService;
-
+import ua.nure.ponomarev.web.form.AuthorizationUserForm;
+import ua.nure.ponomarev.web.validator.UserPasswordValidator;
+import java.util.Map;
+import javax.security.auth.login.CredentialException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
@@ -35,15 +39,20 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Lazy
+    @Autowired
+    private UserPasswordValidator passwordValidator;
+
     /**
      * Default method for spring to showing refereed user form on view side
      * @return page in which form will be displayed
      */
-    @RequestMapping(value = "/login", method = RequestMethod.GET)
+    @ModelAttribute(name = "user")
+    @RequestMapping(value = "/registration",method = RequestMethod.GET)
     public String showAddUserForm(Model model) {
         User user = new User();
         model.addAttribute("user", user);
-        return "login";
+        return "registration";
     }
 
     /**
@@ -54,18 +63,29 @@ public class UserController {
      * @return - forward to mehtod that will send email if all data correct ,
      * else - send error massages to logging page
      */
-    @RequestMapping(value = "/add", method = RequestMethod.POST)
+    @RequestMapping(value = "/checkRegistration", method = RequestMethod.POST)
     public String showAddUserForm(HttpServletRequest request, @ModelAttribute("user") @Valid User user,
                                   BindingResult bindingResult) {
+        passwordValidation(request,user,bindingResult);
         if (bindingResult.hasErrors()) {
-            return "login";
+            return "registration";
         }
-        request.setAttribute("user", user);
-        return "forward:/user/email/send";
+       return sendConfirmEmail(request);
     }
 
-    @RequestMapping(value = "/email/send", method = RequestMethod.POST)
-    public String sendConfirmEmail(HttpServletRequest request) {
+    private void passwordValidation(HttpServletRequest request,User user, BindingResult bindingResult){
+        Map<String,String> errors = passwordValidator.validate(user.getPassword()
+                ,request.getParameter("repeat_password"));
+        if(!errors.isEmpty()){
+            bindingResult.addError(new ObjectError("password"
+                    ,"Invalid password"));
+            for (String error:errors.keySet()) {
+                request.setAttribute(error, errors.get(error));
+            }
+        }
+    }
+
+    private String sendConfirmEmail(HttpServletRequest request) {
         User user = (User) request.getAttribute("user");
         try {
             userService.sendConfirmEmail(user
@@ -73,7 +93,7 @@ public class UserController {
                             + ":" + request.getServerPort() + "/user/email/confirm");
         } catch (MailSenderException | RegistrationException e) {
             return "SOME ERROR PAGE"; //TODO
-        }
+        }//PRG
         return "redirect:SUCCESSFUL PAGE,CHECK YOUR MAIL BUCKET";
     }
 
@@ -95,8 +115,29 @@ public class UserController {
             }
         } catch (RegistrationException e) {
             logger.info("Registration token is old :" + e);
-            return new ModelAndView("successEmailConfirming"
+            return new ModelAndView("successEmailConfirming"//PRG
                     ,model.addAttribute("errorMessage", OUTDATE_EMAIL_TOKEN_MESSAGE).asMap());
         }
+    }
+
+//   @ModelAttribute(value = "loginUser")
+   @RequestMapping(value = "/login",method = RequestMethod.GET)
+    public String login(Model model){
+       model.addAttribute("loginUser",new AuthorizationUserForm());
+/*
+       model.addAttribute("invalid" , new ObjectError("invalid","invlaid"));
+*/
+        return "login";
+    }
+    @RequestMapping(value = "/checkLogin")
+    public String login(@ModelAttribute("loginUser") AuthorizationUserForm userForm
+            ,BindingResult bindingResult){
+        try {
+            userService.loginUser(userForm.getEmail(),userForm.getPassword());
+        } catch (CredentialException e) {
+           bindingResult.rejectValue("email","error.loginUser",e.getMessage());
+           return "login";
+        }
+        return "SUCCESS";
     }
 }

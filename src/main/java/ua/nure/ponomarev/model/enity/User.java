@@ -50,9 +50,12 @@ public class User implements Serializable {
 
     @NotNull(message = "Phone number ca`nt be empty")
     @NotEmpty(message = "Phone number ca`nt be empty")
-    @Size(min = 5, max = 15, message = "Password must be between 5 or 15 symbols")
+    @Pattern(regexp = "\\w+",message = "Only symbols and numbers")
     @Column(name = "password", nullable = false)
     private String password;
+
+    @Column(name = "password_salt",nullable = true)
+    private String salt;
 
     @Past
     @Temporal(TemporalType.DATE)
